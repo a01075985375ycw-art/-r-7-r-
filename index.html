@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4efe8">
+<link rel="manifest" href="manifest.webmanifest">
+<title>POSTYPE LIBRARY</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4efe8;color:#302c29;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
+header{padding:28px 16px 18px;text-align:center;background:#f8f4ee;border-bottom:1px solid #ddd4ca}h1{margin:0;font:700 25px Georgia,serif;letter-spacing:2px}.sub{margin-top:7px;color:#857b72;font-size:12px}
+nav{display:flex;gap:8px;padding:14px 16px;background:#f8f4ee;overflow:auto}button{font:inherit}nav button,.status button{border:1px solid #d8cec4;background:#fffaf5;border-radius:20px;padding:8px 13px;white-space:nowrap;color:#6b625b}nav .active,.status .sel{background:#3f3934;color:#fff;border-color:#3f3934}
+main{max-width:760px;margin:auto;padding:18px 16px 100px}.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.count{font-size:13px;color:#81766e}.add{border:0;background:#3f3934;color:#fff;border-radius:22px;padding:10px 15px;font-weight:700}
+.shelf{display:grid;grid-template-columns:repeat(2,1fr);gap:22px 14px;padding:18px 8px}.card{cursor:pointer}.cover{aspect-ratio:3/4;background:#ded6cd;border-radius:5px;overflow:hidden;box-shadow:3px 5px 9px #0002}.cover img,.bigcover img,.preview img{width:100%;height:100%;object-fit:cover}.placeholder{height:100%;display:grid;place-items:center;color:#93877d;font-size:12px}.title{text-align:center;font:15px Georgia,serif;margin:10px 4px 0;line-height:1.4}.author{text-align:center;color:#8a8078;font-size:11px;margin-top:4px}.empty{text-align:center;color:#8d837a;padding:65px 20px;line-height:1.7}
+.checklist{margin-top:35px;background:#eee7df;border-radius:18px;padding:18px}.checkhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.checkhead h2{font:700 18px Georgia,serif;margin:0}.smalladd{border:0;background:#fffaf5;border-radius:18px;padding:7px 11px;color:#625950}.checkitem{display:flex;align-items:center;gap:10px;background:#fffaf5;border-radius:11px;padding:10px;margin:7px 0}.checkitem input{width:19px;height:19px;accent-color:#3f3934}.checkitem.done .ctitle{text-decoration:line-through;color:#9a9189}.ctitle{flex:1;font-size:13px}.x{border:0;background:none;color:#aaa;font-size:18px}
+.modal{position:fixed;inset:0;background:#0007;display:none;align-items:flex-end;justify-content:center;z-index:10}.modal.show{display:flex}.sheet{background:#faf7f2;width:100%;max-width:760px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:22px 18px 35px}.close{float:right;border:0;background:none;font-size:25px;color:#777}.sheet h2{font:700 22px Georgia,serif;margin:4px 40px 20px 0}
+.field{margin:15px 0}.field label{display:block;font-size:12px;color:#786e66;margin-bottom:7px}.field input,.field textarea{width:100%;border:1px solid #d8cec4;background:#fff;border-radius:10px;padding:11px;font:inherit}.field textarea{min-height:105px}.preview{width:120px;aspect-ratio:3/4;background:#e2dad1;border-radius:5px;overflow:hidden;margin-bottom:8px}.status,.tags{display:flex;gap:7px;flex-wrap:wrap}.tag{border:1px solid #d6cbc0;background:#fff;border-radius:18px;padding:7px 10px;font-size:12px}.tag button{border:0;background:none;color:#999}.save{width:100%;padding:13px;border:0;border-radius:12px;background:#3f3934;color:#fff;font-weight:700;font-size:15px}
+.detail{display:grid;grid-template-columns:120px 1fr;gap:18px}.bigcover{width:120px;aspect-ratio:3/4;background:#ddd4ca;border-radius:5px;overflow:hidden}.meta{font-size:13px;color:#756b63;line-height:1.8}.linkbtn{display:block;text-align:center;background:#3f3934;color:#fff;text-decoration:none;border-radius:11px;padding:12px;margin-top:18px}.danger{width:100%;border:1px solid #d8cbc1;background:#fff8f3;color:#9b6250;border-radius:11px;padding:10px;margin-top:9px}
+.install{display:none;border:1px solid #d2c6ba;background:#fffaf5;border-radius:20px;padding:8px 13px;color:#5d554e;margin-top:10px}
+@media(min-width:600px){.shelf{grid-template-columns:repeat(4,1fr)}.modal{align-items:center}.sheet{border-radius:20px;max-height:85vh}}
+</style>
+</head>
+<body>
+<header><h1>POSTYPE LIBRARY</h1><div class="sub">내가 읽은 포스타입 작품을 나만의 서재에</div><button id="installBtn" class="install">홈 화면에 설치</button></header>
+<nav><button class="active" data-filter="all">전체</button><button data-filter="reading">읽는 중</button><button data-filter="done">완독</button><button data-filter="want">읽고 싶은</button></nav>
+<main>
+<div class="toolbar"><span class="count" id="count"></span><button class="add" id="addBtn">＋ 포스타입 작품 추가</button></div>
+<section id="shelf" class="shelf"></section>
+
+<section class="checklist">
+<div class="checkhead"><h2>읽고 싶은 포스타입</h2><button class="smalladd" id="listAdd">＋ 목록 추가</button></div>
+<div id="wishList"></div>
+</section>
+</main>
+
+<div class="modal" id="addModal"><div class="sheet">
+<button class="close" data-close>×</button><h2>포스타입 작품 추가</h2>
+<div class="field"><label>대표 사진</label><div class="preview" id="preview"><div class="placeholder">사진을 선택해주세요</div></div><input id="photo" type="file" accept="image/*"></div>
+<div class="field"><label>작품 제목 *</label><input id="title" placeholder="포스타입 작품 제목"></div>
+<div class="field"><label>작가</label><input id="author" placeholder="작가명"></div>
+<div class="field"><label>포스타입 주소 *</label><input id="url" placeholder="https://www.postype.com/..."></div>
+<div class="field"><label>읽기 상태</label><div class="status"><button data-status="reading" class="sel">읽는 중</button><button data-status="done">완독</button><button data-status="want">읽고 싶은</button></div></div>
+<div class="field"><label>별점</label><input id="rating" type="number" min="0" max="5" step="0.5" placeholder="0 ~ 5"></div>
+<div class="field"><label>읽은 날짜</label><input id="date" type="date"></div>
+<div class="field"><label>태그</label><div class="tags" id="tagList"></div><input id="tagInput" placeholder="#로맨스 입력 후 Enter"></div>
+<div class="field"><label>감상</label><textarea id="note" placeholder="읽고 난 뒤의 생각이나 감정을 기록해보세요."></textarea></div>
+<button class="save" id="saveBtn">책장에 꽂기</button>
+</div></div>
+
+<div class="modal" id="detailModal"><div class="sheet">
+<button class="close" data-close>×</button><h2 id="dTitle"></h2>
+<div class="detail"><div class="bigcover" id="dCover"></div><div class="meta" id="dMeta"></div></div>
+<div id="dTags" style="margin-top:14px"></div><p id="dNote" style="line-height:1.7;white-space:pre-wrap"></p>
+<a id="dLink" class="linkbtn" target="_blank" rel="noopener">포스타입 원문 보기 ↗</a>
+<button id="deleteBtn" class="danger">이 작품 기록 삭제</button>
+</div></div>
+
+<div class="modal" id="listModal"><div class="sheet">
+<button class="close" data-close>×</button><h2>읽고 싶은 작품 추가</h2>
+<div class="field"><label>작품 제목 *</label><input id="wTitle" placeholder="읽고 싶은 포스타입 작품"></div>
+<div class="field"><label>포스타입 주소 (선택)</label><input id="wUrl" placeholder="https://www.postype.com/..."></div>
+<button class="save" id="wishSave">체크리스트에 추가</button>
+</div></div>
+
+<script>
+const WORKS="postype_library_v2",WISH="postype_wishlist_v1";
+let works=JSON.parse(localStorage.getItem(WORKS)||"[]"), wishes=JSON.parse(localStorage.getItem(WISH)||"[]");
+let filter="all",photoData="",selectedStatus="reading",tags=[],currentId=null;
+const $=id=>document.getElementById(id), esc=s=>String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function persist(){localStorage.setItem(WORKS,JSON.stringify(works));localStorage.setItem(WISH,JSON.stringify(wishes))}
+function render(){
+ let list=works.filter(w=>filter==="all"||w.status===filter);$("count").textContent=`${list.length}권 기록됨`;
+ $("shelf").innerHTML=list.length?list.map(w=>`<article class="card" data-id="${w.id}"><div class="cover">${w.photo?`<img src="${w.photo}" alt="">`:`<div class="placeholder">대표 사진 없음</div>`}</div><div class="title">${esc(w.title)}</div><div class="author">${esc(w.author)}</div></article>`).join(""):`<div class="empty" style="grid-column:1/-1">아직 기록한 작품이 없다면<br>첫 번째 책을 책장에 꽂아보세요.</div>`;
+ document.querySelectorAll(".card").forEach(c=>c.onclick=()=>detail(c.dataset.id));renderWishes();
+}
+function renderWishes(){
+ $("wishList").innerHTML=wishes.length?wishes.map(w=>`<div class="checkitem ${w.done?"done":""}"><input type="checkbox" ${w.done?"checked":""} data-check="${w.id}"><span class="ctitle">${esc(w.title)}</span>${w.url?`<a href="${esc(w.url)}" target="_blank" rel="noopener" style="font-size:11px;color:#786e66">열기</a>`:""}<button class="x" data-x="${w.id}">×</button></div>`).join(""):`<div style="font-size:12px;color:#8d837a;padding:12px 2px">아직 저장한 작품이 없어요.</div>`;
+ document.querySelectorAll("[data-check]").forEach(x=>x.onchange=()=>{let w=wishes.find(a=>a.id===x.dataset.check);w.done=x.checked;persist();renderWishes()});
+ document.querySelectorAll("[data-x]").forEach(x=>x.onclick=()=>{wishes=wishes.filter(a=>a.id!==x.dataset.x);persist();renderWishes()});
+}
+function modal(id){$(id).classList.add("show")}function close(){document.querySelectorAll(".modal").forEach(m=>m.classList.remove("show"))}
+function reset(){photoData="";selectedStatus="reading";tags=[];["title","author","url","rating","date","note"].forEach(i=>$(i).value="");$("preview").innerHTML='<div class="placeholder">사진을 선택해주세요</div>';document.querySelectorAll(".status button").forEach((b,i)=>b.classList.toggle("sel",i===0));renderTags()}
+function renderTags(){$("tagList").innerHTML=tags.map((t,i)=>`<span class="tag">${esc(t)} <button data-t="${i}">×</button></span>`).join("");document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{tags.splice(+b.dataset.t,1);renderTags()})}
+$("addBtn").onclick=()=>{reset();modal("addModal")};$("listAdd").onclick=()=>{$("wTitle").value="";$("wUrl").value="";modal("listModal")};
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");filter=b.dataset.filter;render()});
+document.querySelectorAll(".status button").forEach(b=>b.onclick=()=>{selectedStatus=b.dataset.status;document.querySelectorAll(".status button").forEach(x=>x.classList.toggle("sel",x===b))});
+$("tagInput").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();let v=e.target.value.trim();if(v){if(!v.startsWith("#"))v="#"+v;tags.push(v);e.target.value="";renderTags()}}};
+$("photo").onchange=e=>{let f=e.target.files[0];if(!f)return;if(f.size>8*1024*1024){alert("사진은 8MB 이하로 선택해주세요.");return}let r=new FileReader();r.onload=x=>{photoData=x.target.result;$("preview").innerHTML=`<img src="${photoData}" alt="">`};r.readAsDataURL(f)};
+$("saveBtn").onclick=()=>{
+ let title=$("title").value.trim(),url=$("url").value.trim();if(!title||!url){alert("작품 제목과 포스타입 주소는 꼭 입력해주세요.");return}
+ try{let u=new URL(url),h=u.hostname.toLowerCase();if(!(h==="postype.com"||h.endsWith(".postype.com"))){alert("포스타입 주소만 등록할 수 있어요.");return}url=u.href}catch(e){alert("포스타입 주소를 올바르게 입력해주세요.");return}
+ works.push({id:Date.now().toString(),title,author:$("author").value.trim(),url,status:selectedStatus,rating:$("rating").value,date:$("date").value,tags:[...tags],note:$("note").value,photo:photoData});persist();close();render();
+};
+$("wishSave").onclick=()=>{
+ let title=$("wTitle").value.trim(),url=$("wUrl").value.trim();if(!title){alert("작품 제목을 입력해주세요.");return}
+ if(url){try{let u=new URL(url),h=u.hostname.toLowerCase();if(!(h==="postype.com"||h.endsWith(".postype.com"))){alert("포스타입 주소만 입력할 수 있어요.");return}url=u.href}catch(e){alert("주소를 올바르게 입력해주세요.");return}}
+ wishes.push({id:Date.now().toString(),title,url,done:false});persist();close();renderWishes();
+};
+function detail(id){let w=works.find(a=>a.id===id);if(!w)return;currentId=id;$("dTitle").textContent=w.title;$("dCover").innerHTML=w.photo?`<img src="${w.photo}" alt="">`:'<div class="placeholder">대표 사진 없음</div>';let st={reading:"읽는 중",done:"완독",want:"읽고 싶은"}[w.status];$("dMeta").innerHTML=`작가 · ${esc(w.author||"미입력")}<br>상태 · ${st}<br>별점 · ${w.rating?`★ ${w.rating}`:"미평가"}<br>읽은 날짜 · ${w.date||"미입력"}`;$("dTags").innerHTML=(w.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join(" ");$("dNote").textContent=w.note||"아직 감상을 기록하지 않았어요.";$("dLink").href=w.url;modal("detailModal")}
+$("deleteBtn").onclick=()=>{if(confirm("이 작품 기록을 삭제할까요?")){works=works.filter(w=>w.id!==currentId);persist();close();render()}};
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=close);document.querySelectorAll(".modal").forEach(m=>m.onclick=e=>{if(e.target===m)close()});
+render();
+if("serviceWorker" in navigator && location.protocol!=="file:")navigator.serviceWorker.register("./service-worker.js");
+let deferredPrompt;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("installBtn").style.display="inline-block"});$("installBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null}};
+</script>
+</body></html>

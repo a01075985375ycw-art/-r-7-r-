@@ -1,0 +1,5 @@
+{
+"name":"POSTYPE LIBRARY","short_name":"포스타입 서재","start_url":"./","display":"standalone",
+"background_color":"#f4efe8","theme_color":"#f4efe8","lang":"ko",
+"icons":[{"src":"icon-192.svg","sizes":"192x192","type":"image/svg+xml"},{"src":"icon-512.svg","sizes":"512x512","type":"image/svg+xml"}]
+}
